@@ -6,7 +6,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,9 +21,7 @@ public class Test {
             Document doc = dBuilder.parse(fXmlFile);
             doc.getDocumentElement().normalize();
 
-//            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
             NodeList nList = doc.getElementsByTagName("VARIABLE");
-//            System.out.println("----------------------------");
             BayesianNetwork bn = new BayesianNetwork();
             for (int temp = 0; temp < nList.getLength(); temp++) {
                 Node nNode = nList.item(temp);
@@ -37,19 +34,6 @@ public class Test {
                     bn.addVariable(n);
                 }
             }
-//            for (int temp = 0; temp < nList.getLength(); temp++) {
-//                Node nNode = nList.item(temp);
-////                System.out.println("\nCurrent Element :" + nNode.getNodeName());
-//                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-//                    Element eElement = (Element) nNode;
-//                    System.out.println("name : "
-//                            + eElement.getElementsByTagName("NAME")
-//                            .item(0).getTextContent());
-//                    for (int i=0;i<eElement.getElementsByTagName("OUTCOME").getLength();i++)
-//                        System.out.println("outcome "+(i+1)+": " + eElement.getElementsByTagName("OUTCOME")
-//                                .item(i).getTextContent());
-//                }
-//            }
             NodeList nList2 = doc.getElementsByTagName("DEFINITION");
             for (int temp = 0; temp < nList2.getLength(); temp++) {
                 Node nNode = nList2.item(temp);
@@ -58,7 +42,7 @@ public class Test {
                     String var =eElement.getElementsByTagName("FOR").item(0).getTextContent();
                     Variable n = bn.net.get(var);
                     List<Variable> list = new ArrayList<>();
-
+                    list.add(n);
                     if (eElement.getElementsByTagName("GIVEN").getLength()>0){
                         LinkedList<String> p =new LinkedList<>();
                         for (int i=0;i<eElement.getElementsByTagName("GIVEN").getLength();i++){
@@ -68,30 +52,14 @@ public class Test {
                         }
                         bn.updateParent(n,p);
                     }
-                    list.add(n);
+
                     String p =eElement.getElementsByTagName("TABLE").item(0).getTextContent();
                     bn.addFactor(new Factor(list,p));
                 }
-            }return bn;
-//            NodeList nList2 = doc.getElementsByTagName("DEFINITION");
-//            System.out.println("----------------------------");
-//            for (int temp = 0; temp < nList2.getLength(); temp++) {
-//                Node nNode = nList2.item(temp);
-////                System.out.println("\nCurrent Element :" + nNode.getNodeName());
-//                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-//                    Element eElement = (Element) nNode;
-//                    System.out.println("for : "
-//                            + eElement.getElementsByTagName("FOR")
-//                            .item(0).getTextContent());
-//                    if (eElement.getElementsByTagName("GIVEN").getLength()>0)
-//                        for (int i=0;i<eElement.getElementsByTagName("GIVEN").getLength();i++)
-//                            System.out.println("given "+(i+1)+": " + eElement.getElementsByTagName("GIVEN")
-//                                    .item(i).getTextContent());
-//                    System.out.println("table: " + eElement.getElementsByTagName("TABLE")
-//                            .item(0).getTextContent()+"\n");
-//                }
-//            }
-        } catch (Exception e) {
+            }
+            return bn;
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -99,8 +67,14 @@ public class Test {
 
     public static void main(String[] args) {
         Test t = new Test();
-        BayesianNetwork bn =t.init("src/alarm_net.xml");
-        System.out.println(bn.getFactorsContain(bn.net.get("P")).size());
+//        BayesianNetwork bn =t.init("src/big_net.xml");
+//        List<String> l = new LinkedList<>();
+//        l.add("C1");l.add("C2");
+//        System.out.println(bn.isAncestor(bn.net.get("A2"),l));
+        String s = "abc=de";
+        int x =s.indexOf("=");
+        System.out.println(s.substring(0,x));
+//        System.out.println(bn.getFactorsContain(bn.net.get("P")).size());
 //        for(int i = 0; i<bn.factors.size();i++)
 //            System.out.println(bn.factors.size());
 //        Variable A = new Variable("A");
@@ -116,7 +90,7 @@ public class Test {
 //        List<String> list2 = new ArrayList<>();
 //        list2.add("B=T");list2.add("E=T");list2.add("A=T");
 //        System.out.println(f.rows.get(list2));
-        System.out.println(bn.checkIndeapendes("B-A|J=T,M=F"));
+        //System.out.println(bn.checkIndeapendes("B-A|J=T,M=F"));
 //        String prob ="I am noam ya shani";
 //        String[] arrp = prob.split("\\s+");
 //        for (int i = 0; i<arrp.length;i++){

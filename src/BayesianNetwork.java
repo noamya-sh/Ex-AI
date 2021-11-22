@@ -18,6 +18,15 @@ public class BayesianNetwork {
         }
         return list;
     }
+    public void addFactor(Factor f){
+        this.factors.put(f.variables,f);
+    }
+    private HashMap<List<Variable>,Factor> copyFactors(){
+        HashMap<List<Variable>,Factor> copy = new HashMap<>();
+        for (var entry:factors.entrySet())
+            copy.put(entry.getKey(), new Factor(entry.getValue()));
+        return copy;
+    }
     public void addVariable(String s){
         Variable n = new Variable(s);
         if (!net.containsKey(s))
@@ -37,7 +46,7 @@ public class BayesianNetwork {
     public String checkIndeapendes(String s){
         String[] arr1 = s.split("\\|");
         String[] arr2 = arr1[0].split("-");
-        LinkedList<String> evidences = new LinkedList<>();
+        List<String> evidences = new LinkedList<>();
         if (arr1.length>1) {
             String[] arr3 = arr1[1].split("=|,");
             for (String str : arr3) {
@@ -45,15 +54,15 @@ public class BayesianNetwork {
                     evidences.add(str);
             }
         }
-        LinkedList<String> visited = BaseBall(arr2[0],evidences);
+        List<String> visited = BaseBall(arr2[0],evidences);
         if (visited.contains(arr2[1]))
             return "no";
         else
             return "yes";
     }
 
-    private LinkedList<String> BaseBall(String var1,LinkedList<String> evidence){
-        LinkedList<String> visited = new LinkedList<>();
+    private List<String> BaseBall(String var1,List<String> evidence){
+        List<String> visited = new LinkedList<>();
         LinkedList<String> Bottom = new LinkedList<>();
         LinkedList<String> Top = new LinkedList<>();
         Queue<String> toVisit = new LinkedList<>();
@@ -94,11 +103,48 @@ public class BayesianNetwork {
             ex2.add(from);
         }
     }
-    public void addFactor(Factor f){
-        this.factors.put(f.variables,f);
+    private void updateHiddens(Variable query, List<String> evidences, List<Variable> hiddens){
+        //check independence
+        List<String> visited = BaseBall(query.getK(),evidences);
+        for(Variable v:hiddens){
+            if (!visited.contains(v.getK()))
+                hiddens.remove(v);
+        }
+        //check for each hidden variable if is ancestor
+        List<String> list = new ArrayList<>(evidences);
+        list.add(query.getK());
+        for(Variable v:hiddens){
+            if(!isAncestor(v,list))
+                hiddens.remove(v);
+        }
     }
-//    public Boolean BaseBall(String var1, String var2){
-//
-//        return false;
-//    }
+
+    public boolean isAncestor(Variable h, List<String> parents) {
+       if (parents.contains(h.getK()))
+           return true;
+       if (parents.size()==0)
+            return false;
+       boolean b = false;
+       for (String s:parents){
+           b = b || isAncestor(h,net.get(s).getParents());
+       }
+       return b;
+    }
+    public double variableEliminate(Variable query, List<String> evidences, List<Variable> hiddens){
+        List<String> evidVar= new LinkedList<>();
+        for (String s:evidences){
+            int x = s.indexOf("=");
+            evidVar.add(s.substring(0,x));
+        }
+        updateHiddens(query,evidVar,hiddens);
+        HashMap<List<Variable>,Factor> copy = copyFactors();
+//        for (var entry: factors.entrySet())
+//            if (entry.getKey().contains())
+//        int j=0;
+//        while (j<hiddens.length){
+//            joinAndEliminate(hiddens[j]);
+//        }
+
+        return 0;
+    }
 }

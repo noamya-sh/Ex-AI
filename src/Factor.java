@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Factor {
+public class Factor implements Comparable<Factor>{
     List<Variable> variables;
     HashMap<List<String>,Double> rows;
     int size;
@@ -82,5 +82,9 @@ public class Factor {
 
     public void eliminate(Variable var) {
 
+    }
+    @Override
+    public int compareTo(Factor o) {
+        return Integer.compare(this.size,o.size);
     }
 }
