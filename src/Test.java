@@ -42,7 +42,7 @@ public class Test {
                     String var =eElement.getElementsByTagName("FOR").item(0).getTextContent();
                     Variable n = bn.net.get(var);
                     List<Variable> list = new ArrayList<>();
-                    list.add(n);
+
                     if (eElement.getElementsByTagName("GIVEN").getLength()>0){
                         LinkedList<String> p =new LinkedList<>();
                         for (int i=0;i<eElement.getElementsByTagName("GIVEN").getLength();i++){
@@ -54,6 +54,7 @@ public class Test {
                     }
 
                     String p =eElement.getElementsByTagName("TABLE").item(0).getTextContent();
+                    list.add(n);
                     bn.addFactor(new Factor(list,p));
                 }
             }
@@ -67,13 +68,18 @@ public class Test {
 
     public static void main(String[] args) {
         Test t = new Test();
-//        BayesianNetwork bn =t.init("src/big_net.xml");
+        BayesianNetwork bn =t.init("src/alarm_net.xml");
+        for (Factor f:bn.factors.values())
+            System.out.println(f);
+        System.out.println("***************************************************************");
+        List<String> e= new LinkedList<>();
+        e.add("J=T");e.add("M=T");
+        bn.updateFactors(e);
+        for (Factor f:bn.factors.values())
+            System.out.println(f);
 //        List<String> l = new LinkedList<>();
 //        l.add("C1");l.add("C2");
 //        System.out.println(bn.isAncestor(bn.net.get("A2"),l));
-        String s = "abc=de";
-        int x =s.indexOf("=");
-        System.out.println(s.substring(0,x));
 //        System.out.println(bn.getFactorsContain(bn.net.get("P")).size());
 //        for(int i = 0; i<bn.factors.size();i++)
 //            System.out.println(bn.factors.size());

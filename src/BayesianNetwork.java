@@ -130,6 +130,26 @@ public class BayesianNetwork {
        }
        return b;
     }
+    public void updateFactors(List<String> evidences){
+        List<String> evidVar= new LinkedList<>();
+        for (String s:evidences){
+            int x = s.indexOf("=");
+            evidVar.add(s.substring(0,x));
+        }
+        for (var entry: factors.entrySet()) {
+            Factor g = entry.getValue();
+            for (String s : evidVar) {
+                if (g.variables.contains(net.get(s))) {
+                    String r = firstStr(evidences, s);
+                    g.rows.entrySet().removeIf(row -> !row.getKey().contains(r));
+                    for(var key:g.rows.entrySet())
+                        key.getKey().remove(r);
+                    g.variables.remove(net.get(s));
+                    g.size=g.rows.size();
+                }
+            }
+        }
+    }
     public double variableEliminate(Variable query, List<String> evidences, List<Variable> hiddens){
         List<String> evidVar= new LinkedList<>();
         for (String s:evidences){
@@ -138,13 +158,26 @@ public class BayesianNetwork {
         }
         updateHiddens(query,evidVar,hiddens);
         HashMap<List<Variable>,Factor> copy = copyFactors();
-//        for (var entry: factors.entrySet())
-//            if (entry.getKey().contains())
+        updateFactors(evidences);
+
+//            if (f.variables.contains())
+//            for (String e : evidences) {
+//                List<String>
+//                if (entry.getKey().contains(e))
+//            }
+
 //        int j=0;
 //        while (j<hiddens.length){
 //            joinAndEliminate(hiddens[j]);
 //        }
 
         return 0;
+    }
+    private String firstStr(List<String> list, String prefix){
+        for (String s:list){
+            if (s.startsWith(prefix))
+                return s;
+        }
+        return "";
     }
 }

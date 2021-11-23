@@ -5,6 +5,11 @@ public class Factor implements Comparable<Factor>{
     HashMap<List<String>,Double> rows;
     int size;
 
+    public Factor(){
+        this.rows=new HashMap<>();
+        this.variables=new LinkedList<>();
+        this.size=0;
+    }
     public Factor(List<Variable> variables,String prob){
         this.variables=variables;
         this.rows=new HashMap<>();
@@ -63,8 +68,8 @@ public class Factor implements Comparable<Factor>{
         int z=0;
         String[] arrp = prob.split("\\s+");
         for(List<String> list:arr){
-            rows.put(list, Double.valueOf(arrp[z]));
-            System.out.println(Arrays.toString(list.toArray())+" ["+arrp[z++]+"]");
+            rows.put(list, Double.valueOf(arrp[z++]));
+//            System.out.println(Arrays.toString(list.toArray())+" ["+arrp[z++]+"]");
         }
     }
     private int getNumOpt(List<Variable> variables , int ind){
@@ -87,4 +92,15 @@ public class Factor implements Comparable<Factor>{
     public int compareTo(Factor o) {
         return Integer.compare(this.size,o.size);
     }
+    public String toString(){
+        String s="Variable: ";
+        for (Variable v:variables){
+            s+=v.getK()+" ";
+        }
+        s+="\n";
+        for(var en:rows.entrySet())
+            s+=Arrays.toString(en.getKey().toArray())+" "+en.getValue()+"\n";
+        return s;
+    }
+
 }
