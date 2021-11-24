@@ -84,13 +84,23 @@ public class Factor implements Comparable<Factor>{
             i*=variables.get(j++).getOutcome().size();
         return i;
     }
-
+    private int ascii(List<Variable> list){
+        String s="";
+        int ascii=0;
+        for(Variable v:list)
+            s+=v.getK();
+        for(char c:s.toCharArray())
+            ascii+=(int)c;
+        return ascii;
+    }
     public void eliminate(Variable var) {
 
     }
     @Override
     public int compareTo(Factor o) {
-        return Integer.compare(this.size,o.size);
+        return Comparator.comparing((Factor f)->f.size)
+                .thenComparing(f->f.ascii(f.variables))
+                .compare(this, o);
     }
     public String toString(){
         String s="Variable: ";

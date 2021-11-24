@@ -21,7 +21,7 @@ public class BayesianNetwork {
     public void addFactor(Factor f){
         this.factors.put(f.variables,f);
     }
-    private HashMap<List<Variable>,Factor> copyFactors(){
+    public HashMap<List<Variable>,Factor> copyFactors(){
         HashMap<List<Variable>,Factor> copy = new HashMap<>();
         for (var entry:factors.entrySet())
             copy.put(entry.getKey(), new Factor(entry.getValue()));
@@ -61,7 +61,7 @@ public class BayesianNetwork {
             return "yes";
     }
 
-    private List<String> BaseBall(String var1,List<String> evidence){
+    public List<String> BaseBall(String var1,List<String> evidence){
         List<String> visited = new LinkedList<>();
         LinkedList<String> Bottom = new LinkedList<>();
         LinkedList<String> Top = new LinkedList<>();
@@ -103,21 +103,6 @@ public class BayesianNetwork {
             ex2.add(from);
         }
     }
-    private void updateHiddens(Variable query, List<String> evidences, List<Variable> hiddens){
-        //check independence
-        List<String> visited = BaseBall(query.getK(),evidences);
-        for(Variable v:hiddens){
-            if (!visited.contains(v.getK()))
-                hiddens.remove(v);
-        }
-        //check for each hidden variable if is ancestor
-        List<String> list = new ArrayList<>(evidences);
-        list.add(query.getK());
-        for(Variable v:hiddens){
-            if(!isAncestor(v,list))
-                hiddens.remove(v);
-        }
-    }
 
     public boolean isAncestor(Variable h, List<String> parents) {
        if (parents.contains(h.getK()))
@@ -130,54 +115,5 @@ public class BayesianNetwork {
        }
        return b;
     }
-    public void updateFactors(List<String> evidences){
-        List<String> evidVar= new LinkedList<>();
-        for (String s:evidences){
-            int x = s.indexOf("=");
-            evidVar.add(s.substring(0,x));
-        }
-        for (var entry: factors.entrySet()) {
-            Factor g = entry.getValue();
-            for (String s : evidVar) {
-                if (g.variables.contains(net.get(s))) {
-                    String r = firstStr(evidences, s);
-                    g.rows.entrySet().removeIf(row -> !row.getKey().contains(r));
-                    for(var key:g.rows.entrySet())
-                        key.getKey().remove(r);
-                    g.variables.remove(net.get(s));
-                    g.size=g.rows.size();
-                }
-            }
-        }
-    }
-    public double variableEliminate(Variable query, List<String> evidences, List<Variable> hiddens){
-        List<String> evidVar= new LinkedList<>();
-        for (String s:evidences){
-            int x = s.indexOf("=");
-            evidVar.add(s.substring(0,x));
-        }
-        updateHiddens(query,evidVar,hiddens);
-        HashMap<List<Variable>,Factor> copy = copyFactors();
-        updateFactors(evidences);
 
-//            if (f.variables.contains())
-//            for (String e : evidences) {
-//                List<String>
-//                if (entry.getKey().contains(e))
-//            }
-
-//        int j=0;
-//        while (j<hiddens.length){
-//            joinAndEliminate(hiddens[j]);
-//        }
-
-        return 0;
-    }
-    private String firstStr(List<String> list, String prefix){
-        for (String s:list){
-            if (s.startsWith(prefix))
-                return s;
-        }
-        return "";
-    }
 }

@@ -6,6 +6,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,15 +69,21 @@ public class Test {
 
     public static void main(String[] args) {
         Test t = new Test();
+
         BayesianNetwork bn =t.init("src/alarm_net.xml");
-        for (Factor f:bn.factors.values())
-            System.out.println(f);
-        System.out.println("***************************************************************");
-        List<String> e= new LinkedList<>();
-        e.add("J=T");e.add("M=T");
-        bn.updateFactors(e);
-        for (Factor f:bn.factors.values())
-            System.out.println(f);
+        VariableEliminate v =new VariableEliminate(bn);
+        List<Factor> l = v.join(bn.net.get("A"));
+        v.eliminate(bn.net.get("A"),l);
+
+//        h.put(l3,8);
+//        for (Factor f:bn.factors.values())
+//            System.out.println(f);
+//        System.out.println("***************************************************************");
+//        List<String> e= new LinkedList<>();
+//        e.add("J=T");e.add("M=T");
+//        bn.updateFactors(e);
+//        for (Factor f:bn.factors.values())
+//            System.out.println(f);
 //        List<String> l = new LinkedList<>();
 //        l.add("C1");l.add("C2");
 //        System.out.println(bn.isAncestor(bn.net.get("A2"),l));
