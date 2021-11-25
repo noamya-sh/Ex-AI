@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -17,7 +16,7 @@ import java.util.List;
 
 
 public class Ex1 {
-
+    /**This function init new Bayesian network from xml input file.**/
     public BayesianNetwork init(String path) {
         try {
             File fXmlFile = new File(path);
@@ -55,12 +54,12 @@ public class Ex1 {
                             p.add(t);
                             list.add(bn.net.get(t));
                         }
-                        bn.updateParent(n,p);
+                        bn.updateParent(n,p);//insert parents of this variable
                     }
 
-                    String p =eElement.getElementsByTagName("TABLE").item(0).getTextContent();
+                    String t =eElement.getElementsByTagName("TABLE").item(0).getTextContent();
                     list.add(n);
-                    bn.addFactor(new Factor(list,p));
+                    bn.addFactor(new Factor(list,t));
                 }
             }
             return bn;

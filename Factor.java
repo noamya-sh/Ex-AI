@@ -1,5 +1,5 @@
 import java.util.*;
-
+/**Factor contains a table that has probabilities for conditions. **/
 public class Factor implements Comparable<Factor>{
     List<Variable> variables;
     HashMap<List<String>,Double> rows;
@@ -35,21 +35,25 @@ public class Factor implements Comparable<Factor>{
     public int size(){
         return rows.size();
     }
+    /**This function init cpt for each variable in bayesian network.
+     * @param variables all variables in bayesianNetwork.
+     * @param prob string containing all the probabilitiesץ**/
     public void add(List<Variable> variables,String prob) {
         ArrayList<List<String>> arr = new ArrayList<>(); //contain all rows
-        int options = getNumOpt(variables , 0),k=0;
+        int options = getNumOptForward(variables , 0),k=0;
         while (k<options){ //init all lists
             List<String> list = new ArrayList<>();
             arr.add(list);
             k++;
         }
+        //Some loops that insert conditions according to the outcomes of each variable.
         int sv = variables.size(), j = 0;
         while (j < sv) {
             k=0;
             Variable v = variables.get(j);
             int so = v.getOutcome().size(), i = 0,l;
-            int nextOptions = getNumOpt(variables, j+1);
-            int prevOptions = getNumOptF(variables, j);
+            int nextOptions = getNumOptForward(variables, j+1);
+            int prevOptions = getNumOptBackward(variables, j);
             while (i < prevOptions) {
                 l=0;
                 while (l<so){
@@ -66,23 +70,27 @@ public class Factor implements Comparable<Factor>{
             j++;
         }
         int z=0;
+        //put in hash list of condition line as key, and probability as value.
         String[] arrp = prob.split("\\s+");
         for(List<String> list:arr){
             rows.put(list, Double.valueOf(arrp[z++]));
         }
     }
-    private int getNumOpt(List<Variable> variables , int ind){
+    /**@return options number of outcomes of variables further down the list.**/
+    private int getNumOptForward(List<Variable> variables , int ind){
         int i =1;
         while (ind < variables.size())
             i*=variables.get(ind++).getOutcome().size();
         return i;
     }
-    private int getNumOptF(List<Variable> variables , int ind){
-        int i =1,j=0;
+    /**@return options number of outcomes of variables from beginning of the list.**/
+    private int getNumOptBackward(List<Variable> variables , int ind){
+        int i = 1,j = 0;
         while (j<ind)
             i*=variables.get(j++).getOutcome().size();
         return i;
     }
+    /**@return sum ascii values of variables names**/
     private int ascii(List<Variable> list){
         String s="";
         int ascii=0;
@@ -94,6 +102,7 @@ public class Factor implements Comparable<Factor>{
     }
 
     @Override
+    /**comparing by size of rows in factor and than by ascii value of the variables in factor**/
     public int compareTo(Factor o) {
         return Comparator.comparing((Factor f)->f.size())
                 .thenComparing(f->f.ascii(f.variables))

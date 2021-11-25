@@ -116,6 +116,7 @@ public class VariableEliminate {
             }
         hiddens = updateHiddens(query,evidVar,hiddens);//delete hidden variables not relevant
         updateFactors(evidences);//clean factors by given
+        //join and eliminate each hidden variable
         for (Variable v:hiddens){
             List<Factor> j = join(v);
             Factor f = eliminate(v,j);
