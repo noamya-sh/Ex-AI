@@ -24,13 +24,14 @@ public class Factor implements Comparable<Factor>{
         this.size=other.size;
         this.variables=v;
         HashMap<List<String>,Double> r = new HashMap<>();
-        for (var entry : rows.entrySet()) {
+        for (var entry : other.rows.entrySet()) {
             List<String> list = new ArrayList<>();
             for(String s:entry.getKey())
                 list.add(s);
             double d= entry.getValue();
             r.put(list,d);
         }
+        this.rows=r;
     }
 
     public void add(List<Variable> variables,String prob) {
@@ -57,7 +58,6 @@ public class Factor implements Comparable<Factor>{
                         String s = v.getK()+"="+v.getOutcome().get(l);
                         arr.get(k++).add(s);
                         m++;
-//                        condition c = new condition(v.getK(), v.getOutcome().get(i));
                     }
                     l++;
                 }
@@ -69,7 +69,6 @@ public class Factor implements Comparable<Factor>{
         String[] arrp = prob.split("\\s+");
         for(List<String> list:arr){
             rows.put(list, Double.valueOf(arrp[z++]));
-//            System.out.println(Arrays.toString(list.toArray())+" ["+arrp[z++]+"]");
         }
     }
     private int getNumOpt(List<Variable> variables , int ind){
@@ -93,9 +92,7 @@ public class Factor implements Comparable<Factor>{
             ascii+=(int)c;
         return ascii;
     }
-    public void eliminate(Variable var) {
 
-    }
     @Override
     public int compareTo(Factor o) {
         return Comparator.comparing((Factor f)->f.size)

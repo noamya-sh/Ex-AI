@@ -5,14 +5,17 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 
-public class Test {
 
+public class Ex1 {
 
     public BayesianNetwork init(String path) {
         try {
@@ -66,49 +69,46 @@ public class Test {
         }
         return null;
     }
+    public void readWrite() throws IOException {
 
-    public static void main(String[] args) {
-        Test t = new Test();
+        List<String> all = Files.readAllLines(Paths.get("src/input.txt"));
+        String xml=  all.remove(0);
+        BayesianNetwork bn = init(xml);
 
-        BayesianNetwork bn =t.init("src/alarm_net.xml");
-        VariableEliminate v =new VariableEliminate(bn);
-        List<Factor> l = v.join(bn.net.get("A"));
-        v.eliminate(bn.net.get("A"),l);
+    }
+    public static void main(String[] args) throws IOException {
+//        Ex1 e = new Ex1();
+//        e.readWrite();
 
-//        h.put(l3,8);
-//        for (Factor f:bn.factors.values())
-//            System.out.println(f);
-//        System.out.println("***************************************************************");
-//        List<String> e= new LinkedList<>();
-//        e.add("J=T");e.add("M=T");
-//        bn.updateFactors(e);
-//        for (Factor f:bn.factors.values())
-//            System.out.println(f);
-//        List<String> l = new LinkedList<>();
-//        l.add("C1");l.add("C2");
-//        System.out.println(bn.isAncestor(bn.net.get("A2"),l));
-//        System.out.println(bn.getFactorsContain(bn.net.get("P")).size());
-//        for(int i = 0; i<bn.factors.size();i++)
-//            System.out.println(bn.factors.size());
-//        Variable A = new Variable("A");
-//        A.addOutCome("T");A.addOutCome("F");
-//        Variable B = new Variable("B");
-//        B.addOutCome("T");B.addOutCome("F");
-//        Variable E = new Variable("E");
-//        E.addOutCome("T");E.addOutCome("F");
+        Ex1 t = new Ex1();
 //
-//        List<Variable> list = new ArrayList<>();
-//        list.add(E);list.add(B);list.add(A);
-//        Factor f = new Factor(list,"0.95 0.05 0.29 0.71 0.94 0.06 0.001 0.999");
-//        List<String> list2 = new ArrayList<>();
-//        list2.add("B=T");list2.add("E=T");list2.add("A=T");
-//        System.out.println(f.rows.get(list2));
-        //System.out.println(bn.checkIndeapendes("B-A|J=T,M=F"));
-//        String prob ="I am noam ya shani";
-//        String[] arrp = prob.split("\\s+");
-//        for (int i = 0; i<arrp.length;i++){
-//            System.out.println(arrp[i]);
-//        }
+        BayesianNetwork bn =t.init("src/alarm_net.xml");
+        VariableEliminate v =new VariableEliminate(bn,"P(B=T|J=T,M=T)");
+        System.out.println(v.answer);
+        VariableEliminate v1 =new VariableEliminate(bn,"P(B=T|J=T,M=T) E-A");
+        System.out.println(v1.answer);
+//        List<String> st =new ArrayList<>();
+//        st.add("C3=T");st.add("B2=F");st.add("C2=v3");
+//        List<Variable> va = new ArrayList<>();
+//        //A2-D1-B3-C1-A1-B1-A3
+////        P(B0=v3|C3=T,B2=F,C2=v3) A2-D1-B3-C1-A1-B1-A3 //check
+////        P(A2=T|C3=T,B2=F,C2=v3) D1-B3-C1-B0-A1-B1-A3
+////        P(A2=T|C2=v1) D1-C1-B0-A1-B1-A3-C3-B2-B3
+////        P(D1=T|C2=v1,C3=F) A2-C1-B0-A1-B1-A3-B2-B3
+////        A2-D1|C3=T,B2=F,C2=v3
+////        A2-B3|C3=T,B2=F,C2=v3
+////        A2-C1|C3=T,B2=F,C2=v3
+////        A2-B0|C3=T,B2=F,C2=v3
+////        A2-A1|C3=T,B2=F,C2=v3
+////        C2-A3|B3=T,C1=T
+////        B0-C2|A2=T,A3=T
+////        A1-D1|C3=T,B2=F,B3=F
+//        va.add(bn.net.get("A2"));va.add(bn.net.get("D1"));va.add(bn.net.get("B3"));va.add(bn.net.get("C1"));va.add(bn.net.get("A1"));
+//        va.add(bn.net.get("B1"));va.add(bn.net.get("A3"));
+//        double d = v.variableEliminate(bn.net.get("B0"),"B0=v3",st,va);
+//        String result = String.format("%.5f", d);
+//        System.out.println(result+" add:"+v.add+" mul:"+v.multi);
+
 
     }
 }

@@ -2,35 +2,21 @@ import java.util.*;
 
 public class BayesianNetwork {
     HashMap<String, Variable> net;
-    HashMap<List<Variable>,Factor> factors;
+    List<Factor> cpt;
 
     public BayesianNetwork(){
         this.net=new HashMap<>();
-        this.factors=new HashMap<>();
+        this.cpt=new LinkedList<>();
     }
 
-    public List<Factor> getFactorsContain(Variable v){
-        List<Factor> list = new ArrayList<>();
-        for (var entry : factors.entrySet()){
-            if(entry.getKey().contains(v)){
-                list.add(entry.getValue());
-            }
-        }
-        return list;
-    }
     public void addFactor(Factor f){
-        this.factors.put(f.variables,f);
+        this.cpt.add(f);
     }
-    public HashMap<List<Variable>,Factor> copyFactors(){
-        HashMap<List<Variable>,Factor> copy = new HashMap<>();
-        for (var entry:factors.entrySet())
-            copy.put(entry.getKey(), new Factor(entry.getValue()));
+    public List<Factor> copyFactors(){
+        List<Factor> copy = new LinkedList<>();
+        for (Factor f:cpt)
+            copy.add(new Factor(f));
         return copy;
-    }
-    public void addVariable(String s){
-        Variable n = new Variable(s);
-        if (!net.containsKey(s))
-            net.put(s,n);
     }
     public void addVariable(Variable n){
         if (!net.containsKey(n.getK()))
@@ -43,67 +29,6 @@ public class BayesianNetwork {
             a.addChild(n.getK());
         }
     }
-    public String checkIndeapendes(String s){
-        String[] arr1 = s.split("\\|");
-        String[] arr2 = arr1[0].split("-");
-        List<String> evidences = new LinkedList<>();
-        if (arr1.length>1) {
-            String[] arr3 = arr1[1].split("=|,");
-            for (String str : arr3) {
-                if (net.containsKey(str))
-                    evidences.add(str);
-            }
-        }
-        List<String> visited = BaseBall(arr2[0],evidences);
-        if (visited.contains(arr2[1]))
-            return "no";
-        else
-            return "yes";
-    }
-
-    public List<String> BaseBall(String var1,List<String> evidence){
-        List<String> visited = new LinkedList<>();
-        LinkedList<String> Bottom = new LinkedList<>();
-        LinkedList<String> Top = new LinkedList<>();
-        Queue<String> toVisit = new LinkedList<>();
-        Queue<String> from = new LinkedList<>();
-        toVisit.add(var1);
-        from.add("from_child");
-        while (!toVisit.isEmpty()){
-            String s = toVisit.poll();
-            String f = from.poll();
-            visited.add(s);
-            if (!evidence.contains(s) && f =="from_child"){
-                if (!Top.contains(s)){
-                    Top.add(s);
-                    addList(toVisit,from,this.net.get(s).getParents(),"from_child");
-                }
-                if (!Bottom.contains(s)){
-                    Bottom.add(s);
-                    addList(toVisit,from,this.net.get(s).getChilds(),"from_parent");
-                }
-            }
-            if (f== "from_parent"){
-                if (evidence.contains(s) && !Top.contains(s)){
-                    Top.add(s);
-                    addList(toVisit,from,this.net.get(s).getParents(),"from_child");
-                }
-                if (!evidence.contains(s) && !Bottom.contains(s)){
-                    Bottom.add(s);
-                    addList(toVisit,from,this.net.get(s).getChilds(),"from_parent");
-                }
-            }
-        }
-        return visited;
-    }
-    private void addList(Queue<String> ex, Queue<String> ex2,LinkedList<String> ad, String from){
-        for (String s:ad){
-//            if (!ex.contains(s))
-            ex.add(s);
-            ex2.add(from);
-        }
-    }
-
     public boolean isAncestor(Variable h, List<String> parents) {
        if (parents.contains(h.getK()))
            return true;
