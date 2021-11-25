@@ -2,7 +2,7 @@ import java.util.*;
 
 public class BayesianNetwork {
     HashMap<String, Variable> net;
-    List<Factor> cpt;
+    private List<Factor> cpt;
 
     public BayesianNetwork(){
         this.net=new HashMap<>();

@@ -1,19 +1,13 @@
 import java.util.*;
 
 public class VariableEliminate {
-    BayesianNetwork bn;
-    List<Factor> factors;
-    int add;
-    int multi;
-    double d;
-    String answer;
+    private BayesianNetwork bn;
+    private List<Factor> factors;
+    private int add;
+    private int multi;
+    private double d;
+    private String answer;
 
-//    public VariableEliminate(BayesianNetwork bn){
-//        this.bn=bn;
-//        this.factors= bn.copyFactors();
-//        this.add=0;
-//        this.multi=0;
-//    }
     public VariableEliminate(BayesianNetwork bn,String s){
         this.bn=bn;
         this.factors= bn.copyFactors();
@@ -29,7 +23,7 @@ public class VariableEliminate {
             String[] arr2 = arr1[1].split(",");
             for(String e:arr2)
                 evidence.add(e);
-        }//P(B=T|M=T) A-E
+        }
         List<Variable> hiddens = new LinkedList<>();
         if (s.length()>(indc+2)){
             String[] arr3 = s.substring(indc+2).split("-");
@@ -37,9 +31,19 @@ public class VariableEliminate {
                 hiddens.add(bn.net.get(var));
         }
         this.d = getVE(query,req,evidence,hiddens);
-        String result = String.format("%.5f", d);
+        String[] split = Double.toString(d).split("\\.");
+        String result;
+        if (split[1].length()>5)
+            result = String.format("%.5f", d);
+        else
+            result = Double.toString(d);
         this.answer = result+","+add+","+multi;
     }
+
+    public String getAnswer() {
+        return answer;
+    }
+
     private void removeFactorsContain(Variable v){
         Iterator i = factors.iterator();
         while (i.hasNext()){
@@ -73,12 +77,16 @@ public class VariableEliminate {
         }
         return hiddens;
     }
-    public void updateFactors(List<String> evidences){
+    private List<String> getVarListFromString(List<String> evidences){
         List<String> evidVar= new LinkedList<>();
         for (String s:evidences){
             int x = s.indexOf("=");
             evidVar.add(s.substring(0,x));
         }
+        return evidVar;
+    }
+    private void updateFactors(List<String> evidences){
+        List<String> evidVar= getVarListFromString(evidences);
         for (Factor g:factors) {
             for (String s : evidVar) {
                 if (g.variables.contains(bn.net.get(s))) {
@@ -88,18 +96,24 @@ public class VariableEliminate {
                     for(var key:g.rows.entrySet())
                         key.getKey().remove(r);
                     g.variables.remove(bn.net.get(s));
-                    g.size=g.rows.size();
                 }
             }
         }
     }
-    public double getVE(Variable query,String req, List<String> evidences, List<Variable> hiddens){
-//        List<Factor> copy = bn.copyFactors();//save deep copy
-        List<String> evidVar= new LinkedList<>();
-        for (String s:evidences){
-            int x = s.indexOf("=");
-            evidVar.add(s.substring(0,x));
-        }
+    private double getVE(Variable query,String req, List<String> evidences, List<Variable> hiddens){
+        List<String> evidVar= getVarListFromString(evidences);
+        //check if exist cpt contain the answer.
+        List<Variable> l = new LinkedList<>();
+        evidVar.stream().iterator().forEachRemaining(f-> l.add(bn.net.get(f)));
+        l.add(query);
+        for(Factor f:factors)
+            if (f.variables.equals(l)){
+                List<String> cor = new LinkedList<>(evidences);
+                cor.add(req);
+                for (var entry:f.rows.entrySet())
+                    if (entry.getKey().containsAll(cor))
+                        return entry.getValue();
+            }
         hiddens = updateHiddens(query,evidVar,hiddens);//delete hidden variables not relevant
         updateFactors(evidences);//clean factors by given
         for (Variable v:hiddens){
@@ -111,7 +125,7 @@ public class VariableEliminate {
 //        System.out.println(j.get(0));
         return normal(j.get(0),req);
     }
-    public List<Factor> getFactorsContain(Variable v){
+    private List<Factor> getFactorsContain(Variable v){
         List<Factor> list = new ArrayList<>();
         for (Factor f:factors){
             if(f.variables.contains(v)){
@@ -120,12 +134,12 @@ public class VariableEliminate {
         }
         return list;
     }
-    public List<Factor> join(Variable v){
+    private List<Factor> join(Variable v){
         List<Factor> list_factors =getFactorsContain(v);
         if (list_factors.size()<=1)
             return list_factors;
         for(Factor f:list_factors)
-            if (f.size==1)
+            if (f.size()==1)
                 list_factors.remove(f);
         while (list_factors.size()>=2){
             Collections.sort(list_factors);
@@ -156,7 +170,6 @@ public class VariableEliminate {
                     }
                 }
             }
-            jf.size=jf.rows.size();
             System.out.println(jf);
             list_factors.add(jf);
             list_factors.remove(f1);
@@ -166,7 +179,7 @@ public class VariableEliminate {
         }
         return list_factors;
     }
-    public Factor eliminate(Variable v, List<Factor> list){
+    private Factor eliminate(Variable v, List<Factor> list){
         Factor f = list.get(0);
         System.out.println("*********Eliminate********");
         List<Variable> remain = f.variables;
@@ -190,19 +203,22 @@ public class VariableEliminate {
             ef.rows.put(m,d);
             add+=count-1;
         }
-        ef.size=ef.rows.size();
         System.out.println(ef);
         factors.remove(f);
         return ef;
     }
-    public double normal(Factor f, String req){
+    private double normal(Factor f, String req){
         List<String> l =new ArrayList<>();
         l.add(req);
         double sum=0;
         for(double n:f.rows.values())
             sum+=n;
-        add+=f.size-1;
-        return f.rows.get(l)/sum;
+        add+=f.size()-1;
+        double d=0;
+        for (var entry:f.rows.entrySet())
+            if (entry.getKey().equals(l))
+                d = entry.getValue();
+        return d/sum;
     }
     private String firstStr(List<String> list, String prefix){
         for (String s:list){

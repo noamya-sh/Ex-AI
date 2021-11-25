@@ -3,12 +3,12 @@ import java.util.*;
 public class Factor implements Comparable<Factor>{
     List<Variable> variables;
     HashMap<List<String>,Double> rows;
-    int size;
+
 
     public Factor(){
         this.rows=new HashMap<>();
         this.variables=new LinkedList<>();
-        this.size=0;
+
     }
     public Factor(List<Variable> variables,String prob){
         this.variables=variables;
@@ -21,7 +21,6 @@ public class Factor implements Comparable<Factor>{
         for (Variable var: other.variables) {
             v.add(var);
         }
-        this.size=other.size;
         this.variables=v;
         HashMap<List<String>,Double> r = new HashMap<>();
         for (var entry : other.rows.entrySet()) {
@@ -33,11 +32,12 @@ public class Factor implements Comparable<Factor>{
         }
         this.rows=r;
     }
-
+    public int size(){
+        return rows.size();
+    }
     public void add(List<Variable> variables,String prob) {
         ArrayList<List<String>> arr = new ArrayList<>(); //contain all rows
         int options = getNumOpt(variables , 0),k=0;
-        this.size=options;
         while (k<options){ //init all lists
             List<String> list = new ArrayList<>();
             arr.add(list);
@@ -95,7 +95,7 @@ public class Factor implements Comparable<Factor>{
 
     @Override
     public int compareTo(Factor o) {
-        return Comparator.comparing((Factor f)->f.size)
+        return Comparator.comparing((Factor f)->f.size())
                 .thenComparing(f->f.ascii(f.variables))
                 .compare(this, o);
     }

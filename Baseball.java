@@ -5,8 +5,10 @@ import java.util.Queue;
 public class Baseball {
     private BayesianNetwork bn;
     private String answer;
-    private List<String> visited;
 
+    public String getAnswer() {
+        return answer;
+    }
     public Baseball(BayesianNetwork bn){
         this.bn=bn;
     }
@@ -29,7 +31,7 @@ public class Baseball {
             this.answer = "yes";
     }
 
-    public List<String> getPath(String var1, List<String> evidence){
+    List<String> getPath(String var1, List<String> evidence){
         List<String> visited = new LinkedList<>();
         LinkedList<String> Bottom = new LinkedList<>();
         LinkedList<String> Top = new LinkedList<>();
