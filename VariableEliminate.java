@@ -146,8 +146,6 @@ public class VariableEliminate {
             Collections.sort(list_factors);
             Factor f1 = list_factors.get(0);
             Factor f2 = list_factors.get(1);
-            System.out.println(f1);System.out.println(f2);
-            System.out.println("*****join*****");
             Factor jf = new Factor();
             //add variables to new factor
             List<Variable> all = new LinkedList<>(f1.variables);
@@ -171,7 +169,6 @@ public class VariableEliminate {
                     }
                 }
             }
-            System.out.println(jf);
             list_factors.add(jf);
             list_factors.remove(f1);
             factors.remove(f1);
@@ -182,7 +179,6 @@ public class VariableEliminate {
     }
     private Factor eliminate(Variable v, List<Factor> list){
         Factor f = list.get(0);
-        System.out.println("*********Eliminate********");
         List<Variable> remain = f.variables;
         remain.remove(v);
         Factor ef=new Factor();
@@ -204,7 +200,6 @@ public class VariableEliminate {
             ef.rows.put(m,d);
             add+=count-1;
         }
-        System.out.println(ef);
         factors.remove(f);
         return ef;
     }

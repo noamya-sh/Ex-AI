@@ -88,9 +88,11 @@ public class Ex1 {
                 }
             }
             FileWriter writer = new FileWriter("output.txt");
+            String last = out.remove(out.size()-1);
             for(String ans: out) {
                 writer.write(ans + System.lineSeparator());
             }
+            writer.write(last);
             writer.close();
         }
         catch (Exception e){ System.out.print(e);}
