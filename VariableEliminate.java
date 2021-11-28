@@ -8,9 +8,10 @@ public class VariableEliminate {
     private double d;
     private String answer;
 
+    //constructor
     public VariableEliminate(BayesianNetwork bn,String s){
         this.bn=bn;
-        this.factors= bn.copyFactors();
+        this.factors= bn.copyFactors();//get deep-copy of all cpt tables from Bayesian Network
         this.add=0;
         this.multi=0;
         int indc = s.indexOf(")");
@@ -30,6 +31,7 @@ public class VariableEliminate {
             for(String var : arr3)
                 hiddens.add(bn.net.get(var));
         }
+        //calculate probability of the requested query
         this.d = getVE(query,req,evidence,hiddens);
         String[] split = Double.toString(d).split("\\.");
         String result;
@@ -44,6 +46,7 @@ public class VariableEliminate {
         return answer;
     }
 
+    /**After doing "join" on a variable we delete all the factors that contain itץ**/
     private void removeFactorsContain(Variable v){
         Iterator i = factors.iterator();
         while (i.hasNext()){
@@ -52,6 +55,7 @@ public class VariableEliminate {
                i.remove();
         }
     }
+    /**Check the hidden variables that are dependent on the query and whether they are ancestors of evidences or query.**/
     private List<Variable> updateHiddens(Variable query, List<String> evidences, List<Variable> hiddens){
         //check independence
         Baseball b =new Baseball(this.bn);
@@ -77,6 +81,7 @@ public class VariableEliminate {
         }
         return hiddens;
     }
+    /**@return List of variables without their conditions. **/
     private List<String> getVarListFromString(List<String> evidences){
         List<String> evidVar= new LinkedList<>();
         for (String s:evidences){
@@ -85,6 +90,7 @@ public class VariableEliminate {
         }
         return evidVar;
     }
+    /**Update the factors according to the evidence data.**/
     private void updateFactors(List<String> evidences){
         List<String> evidVar= getVarListFromString(evidences);
         for (Factor g:factors) {
@@ -93,13 +99,16 @@ public class VariableEliminate {
                     String r = firstStr(evidences, s);
                     g.rows.entrySet().removeIf(row -> !row.getKey().contains(r));
                     //remove this 'given' from each row contain it.
-                    for(var key:g.rows.entrySet())
+                    for(Map.Entry<List<String>, Double> key:g.rows.entrySet())
                         key.getKey().remove(r);
                     g.variables.remove(bn.net.get(s));
                 }
             }
         }
     }
+    /**This function perform Variable Eliminate algorithm. It does "join" and "eliminate" on each
+     *  of the hidden variables, and finally does "join" on the query variable.
+     *  @return the normalized answer**/
     private double getVE(Variable query,String req, List<String> evidences, List<Variable> hiddens){
         List<String> evidVar= getVarListFromString(evidences);
         //check if exist cpt contain the answer.
@@ -110,7 +119,7 @@ public class VariableEliminate {
             if (f.variables.equals(l)){
                 List<String> cor = new LinkedList<>(evidences);
                 cor.add(req);
-                for (var entry:f.rows.entrySet())
+                for (Map.Entry<List<String>, Double> entry:f.rows.entrySet())
                     if (entry.getKey().containsAll(cor))
                         return entry.getValue();
             }
@@ -123,9 +132,9 @@ public class VariableEliminate {
             factors.add(f);
         }
         List<Factor> j = join(query);
-//        System.out.println(j.get(0));
         return normal(j.get(0),req);
     }
+    /**@return List of all factors contain this variable**/
     private List<Factor> getFactorsContain(Variable v){
         List<Factor> list = new ArrayList<>();
         for (Factor f:factors){
@@ -135,6 +144,9 @@ public class VariableEliminate {
         }
         return list;
     }
+    /**The function does "join" on any two factors that contain the variable.
+     *  It doubles the values of the matching rows (according to condition)
+     *  and produces a new row in the new factor**/
     private List<Factor> join(Variable v){
         List<Factor> list_factors =getFactorsContain(v);
         if (list_factors.size()<=1)
@@ -143,22 +155,23 @@ public class VariableEliminate {
             if (f.size()==1)
                 list_factors.remove(f);
         while (list_factors.size()>=2){
-            Collections.sort(list_factors);
+            Collections.sort(list_factors);//sort by size of factor (number rows) and then by ascii values.
             Factor f1 = list_factors.get(0);
             Factor f2 = list_factors.get(1);
+            //create new factor contain join 2 old factors
             Factor jf = new Factor();
-            //add variables to new factor
+            //add variables of 2 old factors to new factor
             List<Variable> all = new LinkedList<>(f1.variables);
             all.removeAll(f2.variables);
             all.addAll(f2.variables);
             jf.variables=all;
             List<Variable> common = new LinkedList<>(f1.variables);
             common.retainAll(f2.variables);
-            for(var row:f1.rows.entrySet()){
+            for(Map.Entry<List<String>, Double> row:f1.rows.entrySet()){
                 List<String> common_val = new LinkedList<>();
                 for (Variable e :common)
                     common_val.add(firstStr(row.getKey(),e.getK()));
-                for (var row2:f2.rows.entrySet()){
+                for (Map.Entry<List<String>, Double> row2:f2.rows.entrySet()){
                     if (row2.getKey().containsAll(common_val)){
                         List<String> newR = new ArrayList<>(row.getKey());
                         newR.removeAll(row2.getKey());
@@ -177,6 +190,7 @@ public class VariableEliminate {
         }
         return list_factors;
     }
+    /**The function eliminates a variable from a factor by connecting rows with similar conditions of other variables**/
     private Factor eliminate(Variable v, List<Factor> list){
         Factor f = list.get(0);
         List<Variable> remain = f.variables;
@@ -192,7 +206,7 @@ public class VariableEliminate {
         for(List<String> m:l) {
             double d = 0;
             int count=0;
-            for (var entry : f.rows.entrySet())
+            for (Map.Entry<List<String>, Double> entry : f.rows.entrySet())
                 if (entry.getKey().containsAll(m)) {
                     d += entry.getValue();
                     count++;
@@ -203,6 +217,7 @@ public class VariableEliminate {
         factors.remove(f);
         return ef;
     }
+    /**The function returns a normalized answer so that together with the other rows we get values = 1 **/
     private double normal(Factor f, String req){
         List<String> l =new ArrayList<>();
         l.add(req);
@@ -211,11 +226,12 @@ public class VariableEliminate {
             sum+=n;
         add+=f.size()-1;
         double d=0;
-        for (var entry:f.rows.entrySet())
+        for (Map.Entry<List<String>, Double> entry:f.rows.entrySet())
             if (entry.getKey().equals(l))
                 d = entry.getValue();
         return d/sum;
     }
+    /**An auxiliary function used to check whether a condition belongs to a particular variable**/
     private String firstStr(List<String> list, String prefix){
         for (String s:list){
             if (s.startsWith(prefix))

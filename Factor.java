@@ -1,4 +1,5 @@
 import java.util.*;
+
 /**Factor contains a table that has probabilities for conditions. **/
 public class Factor implements Comparable<Factor>{
     List<Variable> variables;
@@ -23,7 +24,7 @@ public class Factor implements Comparable<Factor>{
         }
         this.variables=v;
         HashMap<List<String>,Double> r = new HashMap<>();
-        for (var entry : other.rows.entrySet()) {
+        for (Map.Entry<List<String>, Double> entry : other.rows.entrySet()) {
             List<String> list = new ArrayList<>();
             for(String s:entry.getKey())
                 list.add(s);
@@ -35,6 +36,7 @@ public class Factor implements Comparable<Factor>{
     public int size(){
         return rows.size();
     }
+
     /**This function init cpt for each variable in bayesian network.
      * @param variables all variables in bayesianNetwork.
      * @param prob string containing all the probabilitiesץ**/
@@ -46,7 +48,19 @@ public class Factor implements Comparable<Factor>{
             arr.add(list);
             k++;
         }
-        //Some loops that insert conditions according to the outcomes of each variable.
+        /**Some loops that insert conditions according to the outcomes of each variable.
+         * In each column - enter the outcome in sequence as the sum of the outcomes of the
+         * variables in the following columns, and perform a new round as the sum of the outcomes
+         * of the variables in the previous columns
+         *For example, in the case where there are 3 variables in the factor, each of which has 2 outcomes (true and false):
+         * A=T | B=T | C=T | 0.xxx |
+         * A=T | B=T | C=F | 0.xxx |
+         * A=T | B=F | C=T | 0.xxx |
+         * A=T | B=F | C=F | 0.xxx |
+         * A=F | B=T | C=T | 0.xxx |
+         * A=F | B=T | C=F | 0.xxx |
+         * A=F | B=F | C=T | 0.xxx |
+         * A=F | B=F | C=F | 0.xxx |*/
         int sv = variables.size(), j = 0;
         while (j < sv) {
             k=0;
@@ -114,7 +128,7 @@ public class Factor implements Comparable<Factor>{
             s+=v.getK()+" ";
         }
         s+="\n";
-        for(var en:rows.entrySet())
+        for(Map.Entry<List<String>, Double> en:rows.entrySet())
             s+=Arrays.toString(en.getKey().toArray())+" "+en.getValue()+"\n";
         return s;
     }

@@ -72,24 +72,23 @@ public class Ex1 {
     /**This function read input file, sends queries to algorithms Baseball and Variable Eliminate,
      * and print the answers to output file.**/
     public void readWrite(){
-        try{
+        try {
             List<String> all = Files.readAllLines(Paths.get("input.txt"));
-            String xml=  all.remove(0);
+            String xml = all.remove(0);
             BayesianNetwork bn = init(xml);
-            List<String> out= new LinkedList<>();
-            for(String q:all){
-                if (q.startsWith("P")){
-                    VariableEliminate v = new VariableEliminate(bn,q);
+            List<String> out = new LinkedList<>();
+            for (String q : all) {
+                if (q.startsWith("P")) {
+                    VariableEliminate v = new VariableEliminate(bn, q);
                     out.add(v.getAnswer());
-                }
-                else {
-                    Baseball b = new Baseball(bn,q);
+                } else {
+                    Baseball b = new Baseball(bn, q);
                     out.add(b.getAnswer());
                 }
             }
             FileWriter writer = new FileWriter("output.txt");
-            String last = out.remove(out.size()-1);
-            for(String ans: out) {
+            String last = out.remove(out.size() - 1);
+            for (String ans : out) {
                 writer.write(ans + System.lineSeparator());
             }
             writer.write(last);

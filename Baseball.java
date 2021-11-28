@@ -9,9 +9,12 @@ public class Baseball {
     public String getAnswer() {
         return answer;
     }
+
     public Baseball(BayesianNetwork bn){
         this.bn=bn;
     }
+
+    /**init Baseball algorithm to check dependent**/
     public Baseball(BayesianNetwork bn, String s){
         this.bn =bn;
         String[] arr1 = s.split("\\|");
@@ -30,13 +33,14 @@ public class Baseball {
         else
             this.answer = "yes";
     }
-
+    /**@return List of all Variables that possible reach them by Baseball algorithm rules**/
     List<String> getPath(String var1, List<String> evidence){
-        List<String> visited = new LinkedList<>();
-        LinkedList<String> Bottom = new LinkedList<>();
-        LinkedList<String> Top = new LinkedList<>();
-        Queue<String> toVisit = new LinkedList<>();
-        Queue<String> from = new LinkedList<>();
+        List<String> visited = new LinkedList<>();//collect all visited variables
+        LinkedList<String> Bottom = new LinkedList<>(); //save information if we added the variables below it
+        LinkedList<String> Top = new LinkedList<>();  //save information if we added the variables above it
+        Queue<String> toVisit = new LinkedList<>(); //contain all variables need to check them
+        Queue<String> from = new LinkedList<>();    /*Contains information adapted to the variable inserted in
+                                                    "toVisit" in order to know from which direction we came*/
         toVisit.add(var1);
         from.add("from_child");
         while (!toVisit.isEmpty()){
@@ -66,6 +70,7 @@ public class Baseball {
         }
         return visited;
     }
+    //Insert appropriately for two queues
     private void addList(Queue<String> ex, Queue<String> ex2,LinkedList<String> ad, String from){
         for (String s:ad){
             ex.add(s);
